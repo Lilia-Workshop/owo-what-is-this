@@ -7,5 +7,3 @@ support_server = ""
 users = []
 guilds = []
 
-[commands]
-list = []
