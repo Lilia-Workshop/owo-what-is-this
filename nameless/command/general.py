@@ -28,7 +28,7 @@ class GeneralCommand(commands.Cog):
 
         account_create_date = member.created_at
         join_date = member.joined_at
-        
+
         assert join_date is not None
 
         flags = [flag.replace("_", " ").title() for flag, has in member.public_flags if has]
@@ -56,9 +56,9 @@ class GeneralCommand(commands.Cog):
         await interaction.response.defer()
 
         guild = interaction.guild
-        
+
         assert guild is not None
-        assert guild.owner is not None # how the fuck can a guild has no owner?
+        assert guild.owner is not None  # how the fuck can a guild has no owner?
 
         guild_create_date = guild.created_at
         members = guild.members
@@ -97,7 +97,7 @@ class GeneralCommand(commands.Cog):
     async def the_bot(self, interaction: discord.Interaction):
         """So, you would like to know me?"""
         await interaction.response.defer()
-        
+
         assert interaction.client.application is not None
         assert interaction.client.user is not None
 
