@@ -6,8 +6,8 @@ import discord
 from discord import Interaction, InteractionResponded
 from discord.app_commands import AppCommandError, CommandTree, errors
 
+from nameless import Nameless
 from nameless.config import nameless_config
-from nameless.genesis import Nameless
 
 __all__ = ["NamelessCommandTree"]
 

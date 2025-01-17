@@ -1,12 +1,11 @@
-[tool.pyright]
+[tool.basedpyright]
 exclude = ["venv", ".venv", "**/__pycache__"]
-reportWildcardImportFromLibrary = "none"
 reportUnnecessaryTypeIgnoreComment = "error"
-reportOptionalMemberAccess = "warning"
-reportOptionalSubscript = "warning"
+reportMissingImports = "error"
+reportMissingTypeStubs = "none"
+reportImportCycles = true
 reportUnusedCallResult = false
-useLibraryCodeForTypes = true
-typeCheckingMode = "strict"
+typeCheckingMode = "recommended"
 
 [tool.ruff]
 line-length = 120
