@@ -1,0 +1,11 @@
+[nameless]
+version = "2025.01.17"
+description = "Just a normal bot."
+support_server = ""
+
+[blacklist]
+users = []
+guilds = []
+
+[commands]
+list = []

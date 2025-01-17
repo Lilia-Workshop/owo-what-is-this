@@ -1,9 +1,11 @@
-name: Validate pushes to main branch
+name: Validate pushes to official nameless* branch(es)
 
 on:
   push:
     branches:
-      - 'main'
+      - "main"
+      - "fix/**"
+      - "feat/**"
 
 permissions:
   contents: write
@@ -14,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,7 +26,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: "pip"
           cache-dependency-path: |
             **/requirements*.txt
@@ -33,11 +35,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install --upgrade setuptools wheel
-          pip install -U -r requirements_core.txt -r requirements_dev.txt
-
-      - name: Create dummy config file
-        run: |
-          cp NamelessConfig_example.py NamelessConfig.py
+          pip install -U -r requirements.txt -r requirements.dev.txt
 
       - name: Fix the code with ruff
         run: |
@@ -46,13 +44,9 @@ jobs:
           ruff check --fix --exit-zero .
           ruff format .
 
-      - name: Type checking with PyWrong
+      - name: Type checking with BasedPyright
         run: |
-          pyright
-
-      - name: Delete the dummy config file
-        run: |
-          rm NamelessConfig.py
+          basedpyright
 
       - name: Push the formatted code if needed.
         uses: stefanzweifel/git-auto-commit-action@v5

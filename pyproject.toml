@@ -1,35 +1,25 @@
 [tool.pyright]
-exclude = [
-    "venv",
-    ".venv",
-    "alembic",
-    "**/__pycache__",
-]
-
-reportWildcardImportFromLibrary = "warning"
+exclude = ["venv", ".venv", "**/__pycache__"]
+reportWildcardImportFromLibrary = "none"
 reportUnnecessaryTypeIgnoreComment = "error"
 reportOptionalMemberAccess = "warning"
 reportOptionalSubscript = "warning"
+reportUnusedCallResult = false
 useLibraryCodeForTypes = true
-pythonVersion = "3.12"
-typeCheckingMode = "basic"
+typeCheckingMode = "strict"
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
-target-version = "py312"
 fix = true
 exclude = [
     ".git",
-    "alembic",
-    ".mypy_cache",
     ".ruff_cache",
     ".venv",
+    "venv",
     "__pypackages__",
     "__pycache__",
-    "venv",
 ]
-
 
 [tool.ruff.format]
 indent-style = "space"
@@ -39,7 +29,3 @@ select = ["E", "F", "UP", "B", "SIM", "I", "Q"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["E402", "F401", "F403"]
-"alembic/env.py" = ["F401"]
-"nameless/database/models.py" = ["F403", "F405"]
-"nameless/cogs/ModeratorCog.py" = ["E999"]
-"NamelessConfig_example.py" = ["SIM115"]
