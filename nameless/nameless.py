@@ -3,7 +3,7 @@ import os
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Self, override
+from typing import Self, override
 
 import discord
 from discord import ActivityType, Permissions
@@ -11,6 +11,7 @@ from discord.app_commands import CommandTree
 from discord.ext import commands
 
 from nameless.config import nameless_config
+from nameless.custom import NamelessCRUD
 
 __all__ = ["Nameless"]
 
@@ -20,13 +21,18 @@ class Nameless(commands.Bot):
 
     def __init__(
         self,
-        command_prefix: str | list[str] | Callable[..., list[str]],
-        *args: object,
         gateway_intents: discord.Intents,
+        *args: object,
         tree_class: type[CommandTree[Self]],
         **kwargs: object,
     ):
-        super().__init__(command_prefix, *args, intents=gateway_intents, tree_cls=tree_class, **kwargs)
+        super().__init__(
+            [],
+            *args,
+            intents=gateway_intents,
+            tree_cls=tree_class,
+            **kwargs,
+        )
         self.description: str = nameless_config["nameless"]["description"]
 
     @override

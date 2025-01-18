@@ -3,7 +3,6 @@ import os
 import sys
 
 import discord
-from discord.ext.commands import when_mentioned_or
 from dotenv import load_dotenv
 
 from nameless import Nameless
@@ -23,9 +22,9 @@ logging.getLogger().name = "nameless"
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 nameless = Nameless(
-    command_prefix=when_mentioned_or("nl."),
     gateway_intents=intents,
     tree_class=command_tree.NamelessCommandTree,
 )
