@@ -18,15 +18,22 @@ model Guild {
   PlayerSetting PlayerSettings?
 }
 
-model CrossChatSubscription {
-  SubscriptionId  String  @id @default(cuid())
-  Guild           Guild?  @relation(fields: [GuildId], references: [Id])
-  GuildId         BigInt?
-  ChannelId       BigInt
-  TargetGuildId   BigInt
-  TargetChannelId BigInt
+model CrossChatRoom {
+  RoomId                String                  @id @default(cuid())
+  GuildId               BigInt
+  ChannelId             BigInt
+  IsOpen                Boolean                 @default(true)
+  CrossChatSubscription CrossChatSubscription[]
+}
 
-  Messages CrossChatMessage[]
+model CrossChatSubscription {
+  SubscriptionId String             @id @default(cuid())
+  Guild          Guild?             @relation(fields: [GuildId], references: [Id])
+  GuildId        BigInt?
+  ChannelId      BigInt
+  Room           CrossChatRoom      @relation(fields: [RoomId], references: [RoomId])
+  RoomId         String
+  Messages       CrossChatMessage[]
 }
 
 model CrossChatMessage {

@@ -15,6 +15,10 @@ class NamelessCRUD:
         await raw_db.connect()
 
     @staticmethod
+    async def dispose() -> None:
+        await raw_db.disconnect()
+
+    @staticmethod
     async def get_or_create_guild_entry(
         guild: discord.Guild, *, include_cross_chat: bool = False
     ) -> models.Guild:
