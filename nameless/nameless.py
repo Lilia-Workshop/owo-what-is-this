@@ -30,6 +30,7 @@ class Nameless(commands.Bot):
             [], *args, intents=gateway_intents, tree_cls=tree_class, **kwargs
         )
         self.description: str = nameless_config["nameless"]["description"]
+        nameless_config["nameless"]["is_shutting_down"] = False
 
     @override
     async def setup_hook(self):
@@ -63,6 +64,7 @@ class Nameless(commands.Bot):
     @override
     async def close(self) -> None:
         logging.warning("Shutting down...")
+        nameless_config["nameless"]["is_shutting_down"] = True
         await super().close()
         exit(0)
 
