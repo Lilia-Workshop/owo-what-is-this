@@ -69,6 +69,7 @@ class Nameless(commands.Bot):
     @override
     async def close(self) -> None:
         logging.warning("Shutting down...")
+        await NamelessCRUD.dispose()
         await super().close()
         exit(0)
 
