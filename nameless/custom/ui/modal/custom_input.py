@@ -1,19 +1,23 @@
-from typing import Generic, TypeVar, override
+from typing import Callable, Generic, TypeVar, override
 
 import discord
 from discord import ui
 
-V = TypeVar("V", bound=type, covariant=True)
+V = TypeVar("V", covariant=True)
 
 
-class CustomInput(ui.TextInput[ui.Modal], Generic[V]):
+class CustomInput(Generic[V], ui.TextInput[ui.Modal]):
     def __init__(
-        self, label: str, custom_id: str, default: str = "0", convert: V = str
+        self,
+        label: str,
+        custom_id: str,
+        default: str = "0",
+        convert: Callable[[str], V] = int,
     ) -> None:
         super().__init__(
             label=label, custom_id=custom_id, placeholder=default, default=default
         )
-        self.convert: V = convert
+        self.convert: Callable[[str], V] = convert
         self.input: V = convert(default)
 
     @override
