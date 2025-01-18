@@ -3,7 +3,8 @@
         "detachhead.basedpyright",
         "ms-python.python",
         "Prisma.prisma",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "charliermarsh.ruff"
     ],
     "unwantedRecommendations": [
         "ms-python.vscode-pylance"
