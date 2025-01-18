@@ -4,11 +4,10 @@ import discord
 import discord.ui
 from discord import app_commands
 from discord.ext import commands
-from prisma.models import CrossChatMessage, CrossChatSubscription
+from prisma.models import CrossChatMessage, CrossChatRoom, CrossChatSubscription
 
 from nameless import Nameless
 from nameless.custom.crud import NamelessCRUD
-from nameless.custom.ui import NamelessYesNoPrompt
 
 __all__ = ["CrossOverCommand"]
 
@@ -30,16 +29,19 @@ class CrossOverCommand(commands.GroupCog, group_name="crossover"):
             return
 
         subs = await CrossChatSubscription.prisma().find_many(
-            where={"GuildId": message.guild.id, "ChannelId": message.channel.id}
+            where={"GuildId": message.guild.id, "ChannelId": message.channel.id},
+            include={"Room": True},
         )
 
         for sub in subs:
-            guild = self.bot.get_guild(sub.TargetGuildId)
+            assert sub.Room is not None
+
+            guild = self.bot.get_guild(sub.Room.GuildId)
 
             if guild is None:
                 return
 
-            channel = guild.get_channel(sub.TargetChannelId)
+            channel = guild.get_channel(sub.Room.ChannelId)
 
             if channel is None:
                 return
@@ -94,16 +96,18 @@ class CrossOverCommand(commands.GroupCog, group_name="crossover"):
                 "ChannelId": message.channel.id,
                 "Messages": {"some": {"OriginMessageId": message.id}},
             },
-            include={"Messages": True},
+            include={"Messages": True, "Room": True},
         )
 
         for sub in subs:
-            guild = self.bot.get_guild(sub.TargetGuildId)
+            assert sub.Room is not None
+
+            guild = self.bot.get_guild(sub.Room.GuildId)
 
             if guild is None:
                 return
 
-            channel = guild.get_channel(sub.TargetChannelId)
+            channel = guild.get_channel(sub.Room.ChannelId)
 
             if channel is None:
                 return
@@ -143,16 +147,18 @@ class CrossOverCommand(commands.GroupCog, group_name="crossover"):
                 "ChannelId": message.channel.id,
                 "Messages": {"some": {"OriginMessageId": message.id}},
             },
-            include={"Messages": True},
+            include={"Messages": True, "Room": True},
         )
 
         for sub in subs:
-            guild = self.bot.get_guild(sub.TargetGuildId)
+            assert sub.Room is not None
+
+            guild = self.bot.get_guild(sub.Room.GuildId)
 
             if guild is None:
                 return
 
-            channel = guild.get_channel(sub.TargetChannelId)
+            channel = guild.get_channel(sub.Room.ChannelId)
 
             if channel is None:
                 return
@@ -173,85 +179,76 @@ class CrossOverCommand(commands.GroupCog, group_name="crossover"):
 
     @app_commands.command()
     @app_commands.guild_only()
-    @app_commands.describe(
-        target_guild="Target guild ID to establish.",
-        target_channel="Target channel to establish.",
-    )
-    async def create_link(
-        self,
-        interaction: discord.Interaction[Nameless],
-        target_guild: str,
-        target_channel: str,
-    ):
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def publish(self, interaction: discord.Interaction[Nameless]):
+        """Establish this channel to the public."""
+        await interaction.response.defer()
+
+        assert interaction.guild is not None
+        assert interaction.channel is not None
+
+        room_data: CrossChatRoom | None = await CrossChatRoom.prisma().find_first(
+            where={"ChannelId": interaction.channel.id, "GuildId": interaction.guild.id}
+        )
+
+        if room_data is None:
+            room_data = await CrossChatRoom.prisma().create(
+                data={
+                    "GuildId": interaction.guild.id,
+                    "ChannelId": interaction.channel.id,
+                }
+            )
+
+        await interaction.followup.send(
+            f"Your cross-chat room code is: `{room_data.RoomId}`"
+        )
+
+    @app_commands.command()
+    @app_commands.guild_only()
+    @app_commands.describe(room_code="Room code to subscribe.")
+    @app_commands.checks.has_permissions(manage_guild=True)
+    async def connect(self, interaction: discord.Interaction[Nameless], room_code: str):
         """Create link to another guild."""
         await interaction.response.defer()
 
-        guild = self.bot.get_guild(int(target_guild))
+        room_data: CrossChatRoom | None = await CrossChatRoom.prisma().find_first(
+            where={"RoomId": room_code}
+        )
 
-        if guild is None:
-            await interaction.followup.send("That guild does not exist.")
-            return
-
-        channel = guild.get_channel(int(target_channel))
-
-        if channel is None:
-            await interaction.followup.send("That channel does not exist.")
-            return
-
-        if isinstance(channel, (discord.ForumChannel, discord.CategoryChannel)):
-            await interaction.followup.send("Invalid channel to link to.")
+        if room_data is None:
+            await interaction.followup.send("Room code does not exist!")
             return
 
         assert interaction.guild is not None
         assert interaction.channel is not None
 
-        temp_data: (
-            CrossChatSubscription | None
-        ) = await CrossChatSubscription.prisma().find_first(
-            where={
-                "ChannelId": interaction.channel.id,
-                "TargetGuildId": guild.id,
-                "TargetChannelId": channel.id,
-            }
-        )
+        this_guild = interaction.guild
+        that_guild = await self.bot.fetch_guild(room_data.GuildId)
 
-        if temp_data is not None:
-            await interaction.followup.send("You had a link with this place before.")
+        assert this_guild is not None
+        assert that_guild is not None
+
+        if (
+            room_data.GuildId == this_guild.id
+            and room_data.ChannelId == interaction.channel.id
+        ):
+            await interaction.followup.send("Don't connect to yourself!")
             return
 
-        await interaction.followup.send("Sending out request, please wait.")
-
-        prompt = NamelessYesNoPrompt()
-
-        await channel.send("You have an incoming link!", view=prompt)
-        await prompt.wait()
-
-        if not prompt.is_a_yes:
-            await interaction.followup.send("Response declined.")
-            return
-
-        await NamelessCRUD.get_or_create_guild_entry(interaction.guild)
-        await NamelessCRUD.get_or_create_guild_entry(guild)
+        await NamelessCRUD.get_or_create_guild_entry(this_guild)
+        await NamelessCRUD.get_or_create_guild_entry(that_guild)
 
         await CrossChatSubscription.prisma().create(
             data={
-                "Guild": {"connect": {"Id": interaction.guild.id}},
+                "Guild": {"connect": {"Id": this_guild.id}},
                 "ChannelId": interaction.channel.id,
-                "TargetGuildId": guild.id,
-                "TargetChannelId": channel.id,
+                "Room": {"connect": {"RoomId": room_code}},
             }
         )
 
-        await CrossChatSubscription.prisma().create(
-            data={
-                "Guild": {"connect": {"Id": guild.id}},
-                "ChannelId": channel.id,
-                "TargetGuildId": interaction.guild.id,
-                "TargetChannelId": interaction.channel.id,
-            }
+        await interaction.followup.send(
+            "Linking success! Please note that the other guild need to do the same."
         )
-
-        await interaction.followup.send("Linking success!")
 
 
 async def setup(bot: Nameless):

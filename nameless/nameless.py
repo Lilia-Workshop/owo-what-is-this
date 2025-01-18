@@ -40,8 +40,14 @@ class Nameless(commands.Bot):
         await self._register_commands()
 
         logging.info("Syncing commands.")
-        await self.tree.sync()
-        logging.warning("Please wait at least one hour before using global commands.")
+
+        if bool(int(os.getenv("DEBUG", 0))):
+            await self.tree.sync(guild=discord.Object(708668574201544745))
+            await self.tree.sync(guild=discord.Object(507428680813772812))
+            logging.warning("Commands are available in debug mode.")
+        else:
+            await self.tree.sync()
+            logging.warning("Commands should be available in one hour.")
 
     async def on_ready(self):
         logging.info("Setting presence.")
