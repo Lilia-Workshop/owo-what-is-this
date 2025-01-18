@@ -22,7 +22,7 @@ class OwnerCommand(commands.Cog):
     @app_commands.command()
     @app_commands.guild_only()
     @nameless_check.owns_the_bot()
-    async def shutdown(self, interaction: discord.Interaction):
+    async def shutdown(self, interaction: discord.Interaction[Nameless]):
         """Shutdown the bot."""
         await interaction.response.defer()
         await interaction.followup.send("Bye owo!")
@@ -32,7 +32,7 @@ class OwnerCommand(commands.Cog):
     @app_commands.command()
     @app_commands.guild_only()
     @nameless_check.owns_the_bot()
-    async def restart(self, interaction: discord.Interaction):
+    async def restart(self, interaction: discord.Interaction[Nameless]):
         """Restart the bot."""
         await interaction.response.defer()
         await interaction.followup.send("See you soon!")
@@ -42,7 +42,7 @@ class OwnerCommand(commands.Cog):
     @app_commands.command()
     @app_commands.guild_only()
     @nameless_check.owns_the_bot()
-    async def refresh_command_list(self, interaction: discord.Interaction):
+    async def refresh_command_list(self, interaction: discord.Interaction[Nameless]):
         """Refresh command list."""
         await interaction.response.defer()
 

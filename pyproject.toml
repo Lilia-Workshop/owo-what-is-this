@@ -27,4 +27,5 @@ indent-style = "space"
 select = ["E", "F", "UP", "B", "SIM", "I", "Q"]
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "F401", "F403"]
+"__init__.py" = ["F403"]
+"*" = ["F401"]

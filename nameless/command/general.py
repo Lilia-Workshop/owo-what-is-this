@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from platform import python_implementation, python_version
+from platform import python_version
 from typing import cast
 
 import discord
@@ -20,7 +20,11 @@ class GeneralCommand(commands.Cog):
 
     @app_commands.command()
     @app_commands.describe(member="A member, default to you.")
-    async def user(self, interaction: discord.Interaction, member: discord.Member | None):
+    async def user(
+        self,
+        interaction: discord.Interaction[Nameless],
+        member: discord.Member | None,
+    ):
         """View someone's information."""
         await interaction.response.defer()
 
@@ -42,16 +46,26 @@ class GeneralCommand(commands.Cog):
                 color=discord.Color.orange(),
             )
             .set_thumbnail(url=member.display_avatar.url)
-            .add_field(name="📆 Account created since", value=f"<t:{int(account_create_date.timestamp())}:R>")
-            .add_field(name="🤝 Membership since", value=f"<t:{int(join_date.timestamp())}:R>")
-            .add_field(name="🌟 Badges", value=", ".join(flags) if flags else "None", inline=False)
+            .add_field(
+                name="📆 Account created since",
+                value=f"<t:{int(account_create_date.timestamp())}:R>",
+            )
+            .add_field(
+                name="🤝 Membership since",
+                value=f"<t:{int(join_date.timestamp())}:R>",
+            )
+            .add_field(
+                name="🌟 Badges",
+                value=", ".join(flags) if flags else "None",
+                inline=False,
+            )
         )
 
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
     @app_commands.guild_only()
-    async def guild(self, interaction: discord.Interaction):
+    async def guild(self, interaction: discord.Interaction[Nameless]):
         """View this guild's information"""
         await interaction.response.defer()
 
@@ -72,19 +86,28 @@ class GeneralCommand(commands.Cog):
 
         embed = (
             discord.Embed(
-                description=f"ℹ️ Guild ID: `{guild.id}` - Owner: {guild.owner.mention}",
+                description=f"Owner: {guild.owner.mention}",
                 timestamp=datetime.now(),
                 title=guild.name,
                 color=discord.Color.orange(),
             )
             .set_thumbnail(url=guild.icon.url if guild.icon else "")
             .add_field(
-                name="⏰ Creation date",
-                value=f"<t:{int(guild_create_date.timestamp())}:R> (<t:{int(guild_create_date.timestamp())}:f>)",
-                inline=False,
+                name="ℹ️ Guild ID",
+                value=f"{guild.id}",
             )
-            .add_field(name=f"👋 Headcount: {total_count}", value=f"BOT: {bots_count}, Human: {humans_count}")
-            .add_field(name="💬 Channels", value=f"{len(guild.channels)} channel(s) - {public_threads_count} thread(s)")
+            .add_field(
+                name="⏰ Creation date",
+                value=f"<t:{int(guild_create_date.timestamp())}:f>",
+            )
+            .add_field(
+                name=f"👋 Headcount: {total_count}",
+                value=f"BOT: {bots_count}, Human: {humans_count}",
+            )
+            .add_field(
+                name="💬 Channels",
+                value=f"{len(guild.channels)} channel(s) - {public_threads_count} thread(s)",
+            )
             .add_field(name="⭐ Roles", value=f"{len(guild.roles)}")
             .add_field(name="📆 Events", value=f"{len(events)}")
             .add_field(name="⬆️ Boosts", value=f"{boosts_count} boost(s)")
@@ -94,7 +117,7 @@ class GeneralCommand(commands.Cog):
         await interaction.followup.send(embed=embed)
 
     @app_commands.command()
-    async def the_bot(self, interaction: discord.Interaction):
+    async def nameless(self, interaction: discord.Interaction[Nameless]):
         """So, you would like to know me?"""
         await interaction.response.defer()
 
@@ -136,14 +159,18 @@ class GeneralCommand(commands.Cog):
             )
             .add_field(
                 name="🫡 Service status",
-                value=f"Serving {servers_count} servers for a total of {total_members_count} users.",
+                value=f"Serving {servers_count} servers and {total_members_count} users.",
                 inline=False,
             )
-            .add_field(name="👋 Online since (UTC)", value=f"<t:{uptime}:F>", inline=False)
+            .add_field(
+                name="👋 Online since",
+                value=f"<t:{uptime}:F> (<t:{uptime}:R>)",
+                inline=False,
+            )
             .add_field(name="ℹ️ Version", value=nameless_config["nameless"]["version"])
             .add_field(
                 name="💻 Runtime",
-                value=f"**discord.py {discord.__version__}** on **{python_implementation()} {python_version()}**",
+                value=f"**discord.py {discord.__version__}** on **Python {python_version()}**",
             )
         )
 
@@ -151,12 +178,22 @@ class GeneralCommand(commands.Cog):
 
         if interaction.client.application.bot_public:
             buttons.add_item(
-                discord.ui.Button(label="Invite me!", style=discord.ButtonStyle.url, url=bot_inv, emoji="😳")
+                discord.ui.Button(
+                    label="Invite me!",
+                    style=discord.ButtonStyle.url,
+                    url=bot_inv,
+                    emoji="😳",
+                )
             )
 
         if bool(support_guild):
             buttons.add_item(
-                discord.ui.Button(label="Support server", style=discord.ButtonStyle.url, url=support_guild, emoji="🤝")
+                discord.ui.Button(
+                    label="Support server",
+                    style=discord.ButtonStyle.url,
+                    url=support_guild,
+                    emoji="🤝",
+                )
             )
 
         buttons.add_item(

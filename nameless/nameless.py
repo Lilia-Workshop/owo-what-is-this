@@ -86,7 +86,8 @@ class Nameless(commands.Bot):
     async def _change_presence(self) -> None:
         """Set up nameless status."""
         await self.change_presence(
-            status=discord.Status.do_not_disturb, activity=discord.Activity(type=ActivityType.watching, name="you")
+            status=discord.Status.do_not_disturb,
+            activity=discord.Activity(type=ActivityType.watching, name="you"),
         )
 
     async def _register_commands(self) -> None:

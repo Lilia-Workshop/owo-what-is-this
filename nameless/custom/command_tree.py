@@ -19,7 +19,10 @@ class NamelessCommandTree(CommandTree[Nameless]):
         super().__init__(client, fallback_to_global=fallback_to_global)
 
     async def _is_blacklisted(
-        self, *, user: discord.User | discord.Member | None = None, guild: discord.Guild | None = None
+        self,
+        *,
+        user: discord.User | discord.Member | None = None,
+        guild: discord.Guild | None = None,
     ) -> bool:
         """Check if an entity is blacklisted from using the bot."""
         # The owners, even if they are in the blacklist, can still use the bot.
@@ -46,14 +49,14 @@ class NamelessCommandTree(CommandTree[Nameless]):
 
         if is_user_blacklisted:
             await interaction.response.send_message(
-                "You have been blacklisted from using me, please contact the bot owner for more information.",
+                "You have been blacklisted, please contact the bot owner if needed.",
                 ephemeral=True,
             )
             return False
 
         if is_guild_blacklisted:
             await interaction.response.send_message(
-                "This guild has been blacklisted from using me, please inform the guild owner about this.",
+                "This guild has been blacklisted, please contact the guild owner.",
                 ephemeral=True,
             )
             return False
