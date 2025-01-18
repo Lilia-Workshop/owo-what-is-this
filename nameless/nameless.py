@@ -102,4 +102,8 @@ class Nameless(commands.Bot):
         for file in available_files:
             module_name = file.replace(".py", "")
             module_name = f"nameless.command.{module_name}"
-            await self.load_extension(module_name)
+
+            try:
+                await self.load_extension(module_name)
+            except commands.ExtensionFailed as ex:
+                raise ex
