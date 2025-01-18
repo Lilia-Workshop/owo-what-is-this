@@ -25,8 +25,7 @@ intents.message_content = True
 intents.members = True
 
 nameless = Nameless(
-    gateway_intents=intents,
-    tree_class=command_tree.NamelessCommandTree,
+    gateway_intents=intents, tree_class=command_tree.NamelessCommandTree
 )
 
 nameless.start_bot(is_debug=is_debug)

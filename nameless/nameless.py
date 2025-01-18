@@ -27,11 +27,7 @@ class Nameless(commands.Bot):
         **kwargs: object,
     ):
         super().__init__(
-            [],
-            *args,
-            intents=gateway_intents,
-            tree_cls=tree_class,
-            **kwargs,
+            [], *args, intents=gateway_intents, tree_cls=tree_class, **kwargs
         )
         self.description: str = nameless_config["nameless"]["description"]
 

@@ -20,8 +20,7 @@ class NamelessCRUD:
     ) -> models.Guild:
         try:
             return await raw_db.guild.find_first_or_raise(
-                where={"Id": guild.id},
-                include={"CrossChat": include_cross_chat},
+                where={"Id": guild.id}, include={"CrossChat": include_cross_chat}
             )
         except RecordNotFoundError:
             return await raw_db.guild.create(
