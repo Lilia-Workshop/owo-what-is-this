@@ -13,9 +13,9 @@ __all__ = ["NamelessCommandTree"]
 
 
 class NamelessCommandTree(CommandTree[Nameless]):
-    """Custom CommandTree for nameless*, for handling blacklists and custom error handling."""
+    """Custom CommandTree for nameless*."""
 
-    def __init__(self, client: Nameless, *, fallback_to_global: bool = True):
+    def __init__(self, client: Nameless, *, fallback_to_global: bool = True) -> None:
         super().__init__(client, fallback_to_global=fallback_to_global)
 
     async def _is_blacklisted(
@@ -64,7 +64,9 @@ class NamelessCommandTree(CommandTree[Nameless]):
         return True
 
     @override
-    async def on_error(self, interaction: Interaction[Nameless], error: AppCommandError, /) -> None:
+    async def on_error(
+        self, interaction: Interaction[Nameless], error: AppCommandError, /
+    ) -> None:
         content = f"Something went wrong when executing the command:\n```\n{error}\n```"
 
         if isinstance(error, errors.CommandSignatureMismatch):
@@ -75,4 +77,6 @@ class NamelessCommandTree(CommandTree[Nameless]):
 
         await interaction.followup.send(content)
 
-        logging.exception("We have gone under a crisis!!!", stack_info=True, exc_info=error)
+        logging.exception(
+            "We have gone under a crisis!!!", stack_info=True, exc_info=error
+        )

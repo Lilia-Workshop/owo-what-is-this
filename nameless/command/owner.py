@@ -53,7 +53,9 @@ class OwnerCommand(commands.Cog):
         self.bot.tree.clear_commands(guild=None)
         await self.bot.tree.sync(guild=None)
 
-        await interaction.followup.send("Command cleaning done, you should restart me to update the new commands.")
+        await interaction.followup.send(
+            "Command cleaning done, you should restart me to update the new commands."
+        )
 
 
 async def setup(bot: Nameless):

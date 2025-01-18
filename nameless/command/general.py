@@ -21,9 +21,7 @@ class GeneralCommand(commands.Cog):
     @app_commands.command()
     @app_commands.describe(member="A member, default to you.")
     async def user(
-        self,
-        interaction: discord.Interaction[Nameless],
-        member: discord.Member | None,
+        self, interaction: discord.Interaction[Nameless], member: discord.Member | None
     ):
         """View someone's information."""
         await interaction.response.defer()
@@ -35,10 +33,12 @@ class GeneralCommand(commands.Cog):
 
         assert join_date is not None
 
-        flags = [flag.replace("_", " ").title() for flag, has in member.public_flags if has]
+        flags = [
+            flag.replace("_", " ").title() for flag, has in member.public_flags if has
+        ]
         embed: discord.Embed = (
             discord.Embed(
-                description=f"ℹ️ User ID: `{member.id}` - Public handle: `@{member.name}`",
+                description=f"Public handle: `@{member.name}`",
                 timestamp=datetime.now(),
                 title=f"@{member.display_name} - "
                 + ("[👑]" if member.guild.owner == member else "[😎]")
@@ -46,13 +46,13 @@ class GeneralCommand(commands.Cog):
                 color=discord.Color.orange(),
             )
             .set_thumbnail(url=member.display_avatar.url)
+            .add_field(name="ℹ️ User ID", value=f"{member.id}")
             .add_field(
                 name="📆 Account created since",
                 value=f"<t:{int(account_create_date.timestamp())}:R>",
             )
             .add_field(
-                name="🤝 Membership since",
-                value=f"<t:{int(join_date.timestamp())}:R>",
+                name="🤝 Membership since", value=f"<t:{int(join_date.timestamp())}:R>"
             )
             .add_field(
                 name="🌟 Badges",
@@ -92,10 +92,7 @@ class GeneralCommand(commands.Cog):
                 color=discord.Color.orange(),
             )
             .set_thumbnail(url=guild.icon.url if guild.icon else "")
-            .add_field(
-                name="ℹ️ Guild ID",
-                value=f"{guild.id}",
-            )
+            .add_field(name="ℹ️ Guild ID", value=f"{guild.id}")
             .add_field(
                 name="⏰ Creation date",
                 value=f"<t:{int(guild_create_date.timestamp())}:f>",
@@ -106,7 +103,10 @@ class GeneralCommand(commands.Cog):
             )
             .add_field(
                 name="💬 Channels",
-                value=f"{len(guild.channels)} channel(s) - {public_threads_count} thread(s)",
+                value=(
+                    f"{len(guild.channels)} channel(s) - "
+                    + f"{public_threads_count} thread(s)"
+                ),
             )
             .add_field(name="⭐ Roles", value=f"{len(guild.roles)}")
             .add_field(name="📆 Events", value=f"{len(events)}")
@@ -125,7 +125,9 @@ class GeneralCommand(commands.Cog):
         assert interaction.client.user is not None
 
         servers_count = len(interaction.client.guilds)
-        total_members_count = sum(len(guild.members) for guild in interaction.client.guilds)
+        total_members_count = sum(
+            len(guild.members) for guild in interaction.client.guilds
+        )
 
         launch_time: datetime = nameless_config["nameless"]["start_time"]
 
@@ -152,14 +154,13 @@ class GeneralCommand(commands.Cog):
                 description="*Not much thing, I guess.*",
             )
             .set_thumbnail(url=interaction.client.user.display_avatar.url)
-            .add_field(
-                name="⭐ Biography",
-                value=self.bot.description,
-                inline=False,
-            )
+            .add_field(name="⭐ Biography", value=self.bot.description, inline=False)
             .add_field(
                 name="🫡 Service status",
-                value=f"Serving {servers_count} servers and {total_members_count} users.",
+                value=(
+                    f"Serving {servers_count} servers "
+                    + f"and {total_members_count} users."
+                ),
                 inline=False,
             )
             .add_field(
@@ -170,7 +171,10 @@ class GeneralCommand(commands.Cog):
             .add_field(name="ℹ️ Version", value=nameless_config["nameless"]["version"])
             .add_field(
                 name="💻 Runtime",
-                value=f"**discord.py {discord.__version__}** on **Python {python_version()}**",
+                value=(
+                    f"**discord.py {discord.__version__}** "
+                    + f"on **Python {python_version()}**"
+                ),
             )
         )
 

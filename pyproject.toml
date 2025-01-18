@@ -8,24 +8,20 @@ reportUnusedCallResult = false
 typeCheckingMode = "recommended"
 
 [tool.ruff]
-line-length = 120
+line-length = 88
 indent-width = 4
 fix = true
-exclude = [
-    ".git",
-    ".ruff_cache",
-    ".venv",
-    "venv",
-    "__pypackages__",
-    "__pycache__",
-]
 
 [tool.ruff.format]
 indent-style = "space"
+skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "SIM", "I", "Q"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F403"]
-"*" = ["F401"]
+"*" = ["F401", "F841"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
