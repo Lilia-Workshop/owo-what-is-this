@@ -37,6 +37,10 @@ jobs:
           pip install --upgrade setuptools wheel
           pip install -U -r requirements.txt -r requirements.dev.txt
 
+      - name: Create Prisma client
+        run: |
+          prisma db push --schema nameless/prisma/schema.prisma
+
       - name: Fix the code with ruff
         run: |
           ruff check --select I --fix --exit-zero .

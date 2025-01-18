@@ -1,0 +1,37 @@
+datasource nameless {
+  provider = "sqlite"
+  url      = "file:../../nameless.sqlite"
+}
+
+generator client {
+  provider             = "prisma-client-py"
+  recursive_type_depth = 5
+}
+
+model User {
+  Id BigInt @id
+}
+
+model Guild {
+  Id        BigInt                  @id
+  CrossChat CrossChatSubscription[]
+}
+
+model CrossChatSubscription {
+  SubscriptionId  String  @id @default(cuid())
+  Guild           Guild?  @relation(fields: [GuildId], references: [Id])
+  GuildId         BigInt?
+  ChannelId       BigInt
+  TargetGuildId   BigInt
+  TargetChannelId BigInt
+
+  Messages CrossChatMessage[]
+}
+
+model CrossChatMessage {
+  SubscriptionMappingId String                 @id @default(cuid())
+  Subscription          CrossChatSubscription? @relation(fields: [SubscriptionId], references: [SubscriptionId])
+  SubscriptionId        String?
+  OriginMessageId       BigInt
+  ClonedMessageId       BigInt
+}

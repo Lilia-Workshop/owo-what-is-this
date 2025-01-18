@@ -36,7 +36,10 @@ class Nameless(commands.Bot):
         self.description: str = nameless_config["nameless"]["description"]
 
     @override
-    async def setup_hook(self) -> None:
+    async def setup_hook(self):
+        logging.info("Connecting to database.")
+        await NamelessCRUD.init()
+
         logging.info("Registering commands.")
         await self._register_commands()
 
