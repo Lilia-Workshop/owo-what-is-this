@@ -13,8 +13,9 @@ model User {
 }
 
 model Guild {
-  Id        BigInt                  @id
-  CrossChat CrossChatSubscription[]
+  Id            BigInt                  @id
+  CrossChat     CrossChatSubscription[]
+  PlayerSetting PlayerSettings?
 }
 
 model CrossChatSubscription {
@@ -34,4 +35,11 @@ model CrossChatMessage {
   SubscriptionId        String?
   OriginMessageId       BigInt
   ClonedMessageId       BigInt
+}
+
+model PlayerSettings {
+  Id               String @id @default(cuid())
+  SponsorblockFlag BigInt
+  Guild            Guild  @relation(fields: [GuildId], references: [Id])
+  GuildId          BigInt @unique
 }
