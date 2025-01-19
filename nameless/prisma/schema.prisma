@@ -5,7 +5,7 @@ datasource nameless {
 
 generator client {
   provider             = "prisma-client-py"
-  recursive_type_depth = 5
+  recursive_type_depth = -1
 }
 
 model User {
@@ -13,32 +13,36 @@ model User {
 }
 
 model Guild {
-  Id        BigInt                  @id
-  CrossChat CrossChatSubscription[]
+  Id             BigInt                @id
+  HostedChats    CrossChatRoom[]
+  ConnectedChats CrossChatConnection[]
 }
 
 model CrossChatRoom {
-  RoomId                String                  @id @default(cuid())
-  GuildId               BigInt
-  ChannelId             BigInt
-  IsOpen                Boolean                 @default(true)
-  CrossChatSubscription CrossChatSubscription[]
+  Id                  String                @id @default(cuid())
+  Guild               Guild?                @relation(fields: [GuildId], references: [Id])
+  GuildId             BigInt
+  ChannelId           BigInt
+  IsPublic            Boolean               @default(true)
+  CrossChatConnection CrossChatConnection[]
 }
 
-model CrossChatSubscription {
-  SubscriptionId String             @id @default(cuid())
-  Guild          Guild?             @relation(fields: [GuildId], references: [Id])
-  GuildId        BigInt?
-  ChannelId      BigInt
-  Room           CrossChatRoom      @relation(fields: [RoomId], references: [RoomId])
-  RoomId         String
-  Messages       CrossChatMessage[]
+model CrossChatConnection {
+  Id              String             @id @default(cuid())
+  Guild           Guild?             @relation(fields: [SourceGuildId], references: [Id])
+  SourceGuildId   BigInt?
+  SourceChannelId BigInt
+  TargetGuildId   BigInt
+  TargetChannelId BigInt
+  Room            CrossChatRoom      @relation(fields: [RoomId], references: [Id])
+  RoomId          String
+  Messages        CrossChatMessage[]
 }
 
 model CrossChatMessage {
-  SubscriptionMappingId String                 @id @default(cuid())
-  Subscription          CrossChatSubscription? @relation(fields: [SubscriptionId], references: [SubscriptionId])
-  SubscriptionId        String?
-  OriginMessageId       BigInt
-  ClonedMessageId       BigInt
+  Id              String               @id @default(cuid())
+  Connection      CrossChatConnection? @relation(fields: [ConnectionId], references: [Id])
+  ConnectionId    String?
+  OriginMessageId BigInt
+  ClonedMessageId BigInt
 }
