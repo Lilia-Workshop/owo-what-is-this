@@ -7,3 +7,9 @@ support_server = ""
 users = []
 guilds = []
 
+[[wavelinks]]
+name = "default"
+uri = "http://localhost:2333"
+password = "youshallnotpass"
+is_default = true
+autostart = true

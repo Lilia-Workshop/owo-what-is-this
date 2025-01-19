@@ -7,3 +7,7 @@
 # Files should not not be exposed to the public
 .env
 nameless.sqlite
+
+# Ignore lavalink stuffs
+**/bin/*
+!application.yml

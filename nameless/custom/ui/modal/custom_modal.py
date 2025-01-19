@@ -4,10 +4,10 @@ import discord
 
 from .custom_input import CustomInput
 
-V = TypeVar("V", bound=type, covariant=True)
+V = TypeVar("V", bound=str | int | float | None, covariant=True)
 
 
-class BaseCustomModal(discord.ui.Modal, Generic[V]):
+class BaseCustomModal(Generic[V], discord.ui.Modal):
     def __init__(self, title: str) -> None:
         super().__init__(timeout=30, title=title)
 
