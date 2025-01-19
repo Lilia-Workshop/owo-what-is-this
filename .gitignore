@@ -9,4 +9,5 @@
 nameless.sqlite
 
 # Ignore lavalink stuffs
-**/bin/
+**/bin/*
+!application.yml
