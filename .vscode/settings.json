@@ -1,4 +1,5 @@
 {
+    "python.languageServer": "None",
     "basedpyright.analysis.diagnosticMode": "workspace",
     "basedpyright.analysis.inlayHints.functionReturnTypes": false,
     "files.exclude": {
