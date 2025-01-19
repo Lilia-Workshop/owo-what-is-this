@@ -1,32 +1,29 @@
 import discord
 from prisma import Prisma, models
-from prisma.errors import RecordNotFoundError
 
-__all__ = ["NamelessCRUD"]
+__all__ = ["NamelessPrisma"]
 
-raw_db: Prisma = Prisma(auto_register=True)
+_raw_db: Prisma = Prisma(auto_register=True)
 
 
-class NamelessCRUD:
-    """A repository class to connect to database."""
-
-    @staticmethod
-    async def init() -> None:
-        await raw_db.connect()
+class NamelessPrisma:
+    """A Prisma class to connect to Prisma ORM."""
 
     @staticmethod
-    async def dispose() -> None:
-        await raw_db.disconnect()
+    async def init():
+        """Intialize Prisma connection."""
+        await _raw_db.connect()
 
     @staticmethod
-    async def get_or_create_guild_entry(
-        guild: discord.Guild, *, include_cross_chat: bool = False
-    ) -> models.Guild:
-        try:
-            return await raw_db.guild.find_first_or_raise(
-                where={"Id": guild.id}, include={"CrossChat": include_cross_chat}
-            )
-        except RecordNotFoundError:
-            return await raw_db.guild.create(
-                data={"Id": guild.id}, include={"CrossChat": include_cross_chat}
-            )
+    async def dispose():
+        """Properly dispose Prisma connection."""
+        await _raw_db.disconnect()
+
+    @staticmethod
+    async def get_guild_entry(guild: discord.Guild) -> models.Guild:
+        """
+        Create a Prisma Guild entry if not exists.
+        """
+        return await _raw_db.guild.upsert(
+            where={"Id": guild.id}, data={"create": {"Id": guild.id}, "update": {}}
+        )

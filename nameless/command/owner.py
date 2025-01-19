@@ -2,60 +2,63 @@ import logging
 import os
 import sys
 
-import discord
-import discord.ui
-from discord import app_commands
 from discord.ext import commands
 
 from nameless import Nameless
-from nameless.command.check import nameless_check
 
 __all__ = ["OwnerCommand"]
 
 
 class OwnerCommand(commands.Cog):
-    """Commands for owners, always loaded by default."""
+    """Commands for owners."""
 
     def __init__(self, bot: Nameless):
-        self.bot: Nameless = bot
+        pass
 
-    @app_commands.command()
-    @app_commands.guild_only()
-    @nameless_check.owns_the_bot()
-    async def shutdown(self, interaction: discord.Interaction[Nameless]):
+    @commands.hybrid_command()
+    @commands.is_owner()
+    async def shutdown(self, ctx: commands.Context[Nameless]):
         """Shutdown the bot."""
-        await interaction.response.defer()
-        await interaction.followup.send("Bye owo!")
+        await ctx.defer()
+        await ctx.send("Bye owo!")
 
-        await self.bot.close()
+        await ctx.bot.close()
 
-    @app_commands.command()
-    @app_commands.guild_only()
-    @nameless_check.owns_the_bot()
-    async def restart(self, interaction: discord.Interaction[Nameless]):
+    @commands.hybrid_command()
+    @commands.is_owner()
+    async def restart(self, ctx: commands.Context[Nameless]):
         """Restart the bot."""
-        await interaction.response.defer()
-        await interaction.followup.send("See you soon!")
+        await ctx.defer()
+        await ctx.send("See you soon!")
 
         os.execl(sys.executable, sys.executable, *sys.argv)
 
-    @app_commands.command()
-    @app_commands.guild_only()
-    @nameless_check.owns_the_bot()
-    async def refresh_command_list(self, interaction: discord.Interaction[Nameless]):
-        """Refresh command list."""
-        await interaction.response.defer()
+    @commands.hybrid_command()
+    @commands.is_owner()
+    async def reload_commands(self, ctx: commands.Context[Nameless]):
+        """Reload all loaded commands."""
+        await ctx.defer()
 
-        for guild in interaction.client.guilds:
-            self.bot.tree.clear_commands(guild=guild)
-            await self.bot.tree.sync(guild=guild)
+        for ext in ctx.bot.extensions:
+            await ctx.bot.reload_extension(ext)
+            logging.info(f"Done reloading {ext}")
 
-        self.bot.tree.clear_commands(guild=None)
-        await self.bot.tree.sync(guild=None)
+        await ctx.send("Done reloading all commands.")
 
-        await interaction.followup.send(
-            "Command cleaning done, you should restart me to update the new commands."
-        )
+    @commands.hybrid_command()
+    @commands.is_owner()
+    async def wipe_commands(self, ctx: commands.Context[Nameless]):
+        """Wipes command list. Require a immediate restart after."""
+        await ctx.defer()
+
+        for guild in ctx.bot.guilds:
+            ctx.bot.tree.clear_commands(guild=guild)
+            await ctx.bot.tree.sync(guild=guild)
+
+        ctx.bot.tree.clear_commands(guild=None)
+        await ctx.bot.tree.sync(guild=None)
+
+        await ctx.send("Command cleaning done, you should restart me to update the new commands.")
 
 
 async def setup(bot: Nameless):

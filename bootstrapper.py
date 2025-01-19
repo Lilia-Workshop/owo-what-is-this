@@ -2,11 +2,10 @@ import logging
 import os
 import sys
 
-import discord
+from discord.ext.commands import when_mentioned_or
 from dotenv import load_dotenv
 
 from nameless import Nameless
-from nameless.custom import command_tree
 
 load_dotenv()
 
@@ -20,12 +19,6 @@ logging.basicConfig(
 
 logging.getLogger().name = "nameless"
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-
-nameless = Nameless(
-    gateway_intents=intents, tree_class=command_tree.NamelessCommandTree
-)
+nameless = Nameless(prefix=when_mentioned_or("nl."))
 
 nameless.start_bot(is_debug=is_debug)

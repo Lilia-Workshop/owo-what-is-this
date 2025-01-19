@@ -4,7 +4,6 @@ from platform import python_version
 from typing import cast
 
 import discord
-from discord import NotFound, app_commands
 from discord.ext import commands
 
 from nameless import Nameless
@@ -15,27 +14,27 @@ __all__ = ["GeneralCommand"]
 
 class GeneralCommand(commands.Cog):
     def __init__(self, bot: Nameless) -> None:
-        super().__init__()
-        self.bot: Nameless = bot
+        pass
 
-    @app_commands.command()
-    @app_commands.describe(member="A member, default to you.")
+    @commands.hybrid_command()
     async def user(
-        self, interaction: discord.Interaction[Nameless], member: discord.Member | None
+        self,
+        ctx: commands.Context[Nameless],
+        member: discord.Member | None = commands.parameter(
+            description="Target member, defaults to you."
+        ),
     ):
         """View someone's information."""
-        await interaction.response.defer()
+        await ctx.defer()
 
-        member = member if member else cast(discord.Member, interaction.user)
+        member = member if member else cast(discord.Member, ctx.author)
 
         account_create_date = member.created_at
         join_date = member.joined_at
 
         assert join_date is not None
 
-        flags = [
-            flag.replace("_", " ").title() for flag, has in member.public_flags if has
-        ]
+        flags = [flag.replace("_", " ").title() for flag, has in member.public_flags if has]
         embed: discord.Embed = (
             discord.Embed(
                 description=f"Public handle: `@{member.name}`",
@@ -51,28 +50,21 @@ class GeneralCommand(commands.Cog):
                 name="📆 Account created since",
                 value=f"<t:{int(account_create_date.timestamp())}:R>",
             )
-            .add_field(
-                name="🤝 Membership since", value=f"<t:{int(join_date.timestamp())}:R>"
-            )
-            .add_field(
-                name="🌟 Badges",
-                value=", ".join(flags) if flags else "None",
-                inline=False,
-            )
+            .add_field(name="🤝 Membership since", value=f"<t:{int(join_date.timestamp())}:R>")
+            .add_field(name="🌟 Badges", value=", ".join(flags) if flags else "None", inline=False)
         )
 
-        await interaction.followup.send(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command()
-    @app_commands.guild_only()
-    async def guild(self, interaction: discord.Interaction[Nameless]):
+    @commands.hybrid_command()
+    @commands.guild_only()
+    async def guild(self, ctx: commands.Context[Nameless]):
         """View this guild's information"""
-        await interaction.response.defer()
+        await ctx.defer()
 
-        guild = interaction.guild
+        guild = ctx.guild
 
         assert guild is not None
-        assert guild.owner is not None  # how the fuck can a guild has no owner?
 
         guild_create_date = guild.created_at
         members = guild.members
@@ -86,17 +78,18 @@ class GeneralCommand(commands.Cog):
 
         embed = (
             discord.Embed(
-                description=f"Owner: {guild.owner.mention}",
+                description=(
+                    f"Owner: {guild.owner.mention}"
+                    if guild.owner
+                    else "'Guild Member' intent missing."
+                ),
                 timestamp=datetime.now(),
                 title=guild.name,
                 color=discord.Color.orange(),
             )
             .set_thumbnail(url=guild.icon.url if guild.icon else "")
             .add_field(name="ℹ️ Guild ID", value=f"{guild.id}")
-            .add_field(
-                name="⏰ Creation date",
-                value=f"<t:{int(guild_create_date.timestamp())}:f>",
-            )
+            .add_field(name="⏰ Creation date", value=f"<t:{int(guild_create_date.timestamp())}:f>")
             .add_field(
                 name=f"👋 Headcount: {total_count}",
                 value=f"BOT: {bots_count}, Human: {humans_count}",
@@ -104,8 +97,7 @@ class GeneralCommand(commands.Cog):
             .add_field(
                 name="💬 Channels",
                 value=(
-                    f"{len(guild.channels)} channel(s) - "
-                    + f"{public_threads_count} thread(s)"
+                    f"{len(guild.channels)} channel(s) - " + f"{public_threads_count} thread(s)"
                 ),
             )
             .add_field(name="⭐ Roles", value=f"{len(guild.roles)}")
@@ -114,37 +106,28 @@ class GeneralCommand(commands.Cog):
             .set_image(url=guild.banner.url if guild.banner else "")
         )
 
-        await interaction.followup.send(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command()
-    async def nameless(self, interaction: discord.Interaction[Nameless]):
+    @commands.hybrid_command()
+    async def nameless(self, ctx: commands.Context[Nameless]):
         """So, you would like to know me?"""
-        await interaction.response.defer()
+        await ctx.defer()
 
-        assert interaction.client.application is not None
-        assert interaction.client.user is not None
+        assert ctx.bot.application is not None
+        assert ctx.bot.user is not None
 
-        servers_count = len(interaction.client.guilds)
-        total_members_count = sum(
-            len(guild.members) for guild in interaction.client.guilds
-        )
+        servers_count = len(ctx.bot.guilds)
+        total_members_count = sum(len(guild.members) for guild in ctx.bot.guilds)
 
         launch_time: datetime = nameless_config["nameless"]["start_time"]
 
         uptime = int(launch_time.timestamp())
         bot_inv = discord.utils.oauth_url(
-            interaction.client.user.id,
-            permissions=self.bot.get_needed_permissions(),
+            ctx.bot.user.id,
+            permissions=ctx.bot.get_needed_permissions(),
             scopes=["bot", "applications.commands"],
         )
         support_guild: str = nameless_config["nameless"]["support_server"]
-
-        try:
-            if support_guild:
-                inv = await self.bot.fetch_invite(support_guild)
-                support_guild = inv.url
-        except NotFound:
-            support_guild = ""
 
         embed: discord.Embed = (
             discord.Embed(
@@ -153,40 +136,31 @@ class GeneralCommand(commands.Cog):
                 timestamp=datetime.now(),
                 description="*Not much thing, I guess.*",
             )
-            .set_thumbnail(url=interaction.client.user.display_avatar.url)
-            .add_field(name="⭐ Biography", value=self.bot.description, inline=False)
+            .set_thumbnail(url=ctx.bot.user.display_avatar.url)
+            .add_field(name="⭐ Biography", value=ctx.bot.description, inline=False)
             .add_field(
                 name="🫡 Service status",
-                value=(
-                    f"Serving {servers_count} servers "
-                    + f"and {total_members_count} users."
-                ),
+                value=(f"Serving {servers_count} servers " + f"and {total_members_count} users."),
                 inline=False,
             )
             .add_field(
-                name="👋 Online since",
-                value=f"<t:{uptime}:F> (<t:{uptime}:R>)",
-                inline=False,
+                name="👋 Online since", value=f"<t:{uptime}:F> (<t:{uptime}:R>)", inline=False
             )
             .add_field(name="ℹ️ Version", value=nameless_config["nameless"]["version"])
             .add_field(
                 name="💻 Runtime",
                 value=(
-                    f"**discord.py {discord.__version__}** "
-                    + f"on **Python {python_version()}**"
+                    f"**discord.py {discord.__version__}** " + f"on **Python {python_version()}**"
                 ),
             )
         )
 
         buttons = discord.ui.View()
 
-        if interaction.client.application.bot_public:
+        if ctx.bot.application.bot_public:
             buttons.add_item(
                 discord.ui.Button(
-                    label="Invite me!",
-                    style=discord.ButtonStyle.url,
-                    url=bot_inv,
-                    emoji="😳",
+                    label="Invite me!", style=discord.ButtonStyle.url, url=bot_inv, emoji="😳"
                 )
             )
 
@@ -209,7 +183,7 @@ class GeneralCommand(commands.Cog):
             )
         )
 
-        await interaction.followup.send(embed=embed, view=buttons)
+        await ctx.send(embed=embed, view=buttons)
 
 
 async def setup(bot: Nameless):
