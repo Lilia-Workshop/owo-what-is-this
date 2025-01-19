@@ -325,7 +325,7 @@ class CrossOverCommand(commands.Cog):
         rooms: list[str] = [conn.RoomId for conn in connections]
 
         embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else "")
-        embed.add_field(name="All connected rooms", value=f"`{"\n".join(rooms)}`")
+        embed.add_field(name="All connected rooms", value=f"`{'\n'.join(rooms)}`")
 
         await ctx.send(
             embed=embed,
