@@ -7,8 +7,7 @@
         "**/venv/": true,
         "**/__pycache__/": true,
         "**/.ruff_cache/": true,
-        ".ruff_cache/**/*": true,
-        ".venv/**/*": true,
-        "nameless.sqlite": true
+        "nameless.sqlite": true,
+        "nameless/command/__init__.py": true
     }
 }
