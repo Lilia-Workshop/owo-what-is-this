@@ -4,7 +4,7 @@ import discord
 
 from .custom_input import CustomInput
 
-V = TypeVar("V", covariant=True)
+V = TypeVar("V", bound=str | int | float | None, covariant=True)
 
 
 class BaseCustomModal(Generic[V], discord.ui.Modal):

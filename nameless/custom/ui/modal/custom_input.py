@@ -3,7 +3,7 @@ from typing import Callable, Generic, TypeVar, override
 import discord
 from discord import ui
 
-V = TypeVar("V", covariant=True)
+V = TypeVar("V", bound=str | int | float | None, covariant=True)
 
 
 class CustomInput(Generic[V], ui.TextInput[ui.Modal]):
