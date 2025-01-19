@@ -6,17 +6,17 @@ on:
       - "main"
       - "fix/**"
       - "feat/**"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
   python:
-    if: ${{ github.repository == 'team-nameless/nameless-discord-bot' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
