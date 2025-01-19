@@ -54,5 +54,6 @@ jobs:
 
       - name: Push the formatted code if needed.
         uses: stefanzweifel/git-auto-commit-action@v5
+        if: ${{ matrix.python-version == '3.13' }}
         with:
           commit_message: "[ci skip] Automated code format commit."
